@@ -130,5 +130,34 @@ streaming_app/
 
 ---
 
+## 🌐 Deploying to Netlify
+
+The app is fully configured for Netlify deployment with [`netlify.toml`](file:///d:/Code%20Projects/streaming_app/netlify.toml) and serverless functions ([`netlify/functions/api.js`](file:///d:/Code%20Projects/streaming_app/netlify/functions/api.js)).
+
+### Method 1: Instant Drag & Drop (Netlify Drop)
+1. Go to [app.netlify.com/drop](https://app.netlify.com/drop).
+2. Drag and drop the generated `cinestuck-netlify-drop.zip` (or the `public/` directory).
+3. Your site will be live instantly with a free SSL `.netlify.app` URL!
+
+### Method 2: Connect via GitHub (Automatic Deploys)
+1. Push your repository to GitHub:
+   ```bash
+   git remote add origin https://github.com/<YOUR_USERNAME>/streaming_app.git
+   git branch -M main
+   git push -u origin main
+   ```
+2. Log in to [app.netlify.com](https://app.netlify.com).
+3. Click **Add new site** > **Import an existing project** > **GitHub**.
+4. Select your repository. Netlify will automatically detect `netlify.toml` and deploy both the static frontend and serverless API proxy!
+
+### Method 3: Netlify CLI
+```bash
+npx netlify-cli login
+npx netlify-cli deploy --prod --dir=public
+```
+
+---
+
 ## ⚖️ Disclaimer
 CineStuck is an educational front-end media aggregator that utilizes third-party iframe embed players (Vidstuck) and metadata from The Movie Database (TMDB). CineStuck does not host, upload, or control any media files.
+
