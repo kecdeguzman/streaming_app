@@ -21,6 +21,15 @@ const API = {
   },
 
   async getTrending() {
+    const settings = Storage.getSettings();
+    if (settings.tmdbApiKey) {
+      try {
+        const res = await fetch(`https://api.themoviedb.org/3/trending/all/week?api_key=${encodeURIComponent(settings.tmdbApiKey)}`);
+        const data = await res.json();
+        if (data && data.results && data.results.length > 0) return data.results;
+      } catch (e) {}
+    }
+
     try {
       const res = await fetch(`${this.baseUrl}/api/trending`, { headers: this.getHeaders() });
       const data = await res.json();
