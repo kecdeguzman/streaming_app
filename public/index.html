@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CineStuck — Free Movie & TV Streaming (Vidstuck)</title>
+  <meta name="description" content="Stream movies, TV series, and anime for free with custom branding, instant resume, and Vidstuck player embed.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎬</text></svg>">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: '#E50914',
+            darkBg: '#090a0f',
+            cardBg: '#13151b'
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-[#090a0f] text-zinc-100 min-h-screen selection:bg-red-600 selection:text-white">
+
+  <!-- =======================================================================
+       TOP NAVIGATION BAR
+       ======================================================================= -->
+  <header class="fixed top-0 inset-x-0 z-40 glass-nav transition-all">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+      
+      <!-- Logo & Navigation Tabs -->
+      <div class="flex items-center gap-8">
+        <a href="/" class="flex items-center gap-2 group">
+          <div class="w-9 h-9 rounded-lg bg-red-600 flex items-center justify-center text-white shadow-lg shadow-red-600/40 group-hover:scale-105 transition-transform">
+            <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+          </div>
+          <span class="text-xl font-extrabold tracking-tight text-white group-hover:text-red-500 transition-colors">
+            CINE<span class="text-red-600">STUCK</span>
+          </span>
+        </a>
+
+        <!-- Category Tabs -->
+        <nav class="hidden md:flex items-center gap-1 text-sm font-medium text-zinc-400">
+          <button data-nav-tab="all" class="px-3 py-1.5 rounded-lg text-red-500 border-b-2 border-red-500 font-bold transition-colors">Home</button>
+          <button data-nav-tab="movies" class="px-3 py-1.5 rounded-lg hover:text-white transition-colors">Movies</button>
+          <button data-nav-tab="tv" class="px-3 py-1.5 rounded-lg hover:text-white transition-colors">TV Shows</button>
+          <button data-nav-tab="anime" class="px-3 py-1.5 rounded-lg hover:text-white transition-colors">Anime</button>
+          <button data-nav-tab="watchlist" class="px-3 py-1.5 rounded-lg hover:text-white transition-colors">My List</button>
+        </nav>
+      </div>
+
+      <!-- Search & Settings -->
+      <div class="flex items-center gap-3">
+        <!-- Search Input -->
+        <div class="relative w-44 sm:w-64">
+          <input 
+            type="text" 
+            id="search-input" 
+            placeholder="Search titles, actors..." 
+            class="w-full bg-zinc-900/80 border border-zinc-700/60 rounded-full pl-9 pr-4 py-1.5 text-xs sm:text-sm text-white placeholder-zinc-400 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all"
+          />
+          <svg class="w-4 h-4 absolute left-3 top-2.5 text-zinc-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        </div>
+
+        <!-- Vidstuck Status Badge -->
+        <div class="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-800/80 border border-zinc-700 text-[11px] font-medium text-zinc-300">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span>Vidstuck Active</span>
+        </div>
+
+        <!-- Settings Button -->
+        <button 
+          onclick="App.openSettings()" 
+          class="p-2 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 hover:text-white transition-colors border border-zinc-700/60"
+          title="App & Player Settings"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- =======================================================================
+       SEARCH RESULTS SECTION (Appears when user types)
+       ======================================================================= -->
+  <section id="search-results-section" class="hidden pt-24 pb-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-xl font-bold flex items-center gap-2">
+        <span>Search Results</span>
+        <span id="search-results-count" class="text-sm font-normal text-zinc-400"></span>
+      </h2>
+      <button onclick="document.getElementById('search-input').value=''; document.getElementById('search-results-section').classList.add('hidden');" class="text-xs text-zinc-400 hover:text-white">
+        Clear Search ✕
+      </button>
+    </div>
+    <div id="search-results-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+      <!-- Search result cards injected here -->
+    </div>
+  </section>
+
+  <!-- =======================================================================
+       HERO SPOTLIGHT SECTION
+       ======================================================================= -->
+  <section id="section-hero" class="relative min-h-[75vh] flex items-end pb-16 pt-32 overflow-hidden">
+    <!-- Backdrop Image -->
+    <div id="hero-backdrop" class="absolute inset-0 bg-cover bg-center transition-all duration-700 scale-105 filter brightness-75"></div>
+    <div class="absolute inset-0 hero-gradient-overlay"></div>
+
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+      <div class="max-w-2xl">
+        <!-- Badges -->
+        <div class="flex items-center gap-2 mb-3">
+          <span id="hero-type" class="px-2 py-0.5 rounded bg-red-600/90 text-[11px] font-extrabold uppercase tracking-widest text-white shadow">
+            FEATURED
+          </span>
+          <span id="hero-rating" class="px-2 py-0.5 rounded bg-zinc-900/80 text-[11px] font-bold text-amber-400 border border-zinc-700">
+            ★ 8.3
+          </span>
+          <span class="text-xs text-zinc-300 font-medium">Stream via Vidstuck</span>
+        </div>
+
+        <!-- Title -->
+        <h1 id="hero-title" class="text-4xl sm:text-6xl font-black tracking-tight text-white mb-4 line-clamp-2">
+          Avengers: Endgame
+        </h1>
+
+        <!-- Overview -->
+        <p id="hero-overview" class="text-sm sm:text-base text-zinc-300 mb-8 line-clamp-3 leading-relaxed">
+          After the devastating events of Avengers: Infinity War, the universe is in ruins. With the help of remaining allies, the Avengers assemble once more in order to reverse Thanos' actions.
+        </p>
+
+        <!-- CTA Buttons -->
+        <div class="flex flex-wrap items-center gap-3">
+          <button id="hero-watch-btn" class="px-6 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-sm sm:text-base flex items-center gap-2 shadow-xl shadow-red-600/30 transition-all hover:scale-105">
+            <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            <span>Watch Now</span>
+          </button>
+          
+          <button id="hero-info-btn" class="px-5 py-3 rounded-xl glass-panel hover:bg-zinc-800 text-white font-semibold text-sm sm:text-base flex items-center gap-2 transition-all">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>Details</span>
+          </button>
+
+          <button id="hero-list-btn" class="px-4 py-3 rounded-xl glass-panel hover:bg-zinc-800 text-zinc-200 hover:text-white font-medium text-sm transition-all">
+            <svg class="w-5 h-5 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg> Add to List
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =======================================================================
+       MAIN CONTENT CAROUSELS
+       ======================================================================= -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10 pb-24 -mt-6 relative z-20">
+
+    <!-- 1. CONTINUE WATCHING (Shows progress & instant resume) -->
+    <section id="section-continue-watching" class="hidden">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+          <span class="text-red-500">🕒</span> Continue Watching
+        </h3>
+        <button onclick="Storage.clearWatchHistory(); App.renderContinueWatching();" class="text-xs text-zinc-400 hover:text-red-400">
+          Clear History
+        </button>
+      </div>
+      <div class="relative group/carousel">
+        <button onclick="App.scrollRow('row-continue-watching', 'left')" class="absolute -left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/80 hover:bg-red-600 text-white flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-all shadow-lg">
+          ‹
+        </button>
+        <div id="row-continue-watching" class="flex gap-4 overflow-x-auto no-scrollbar scroll-smooth py-2">
+          <!-- Injected via storage.js -->
+        </div>
+        <button onclick="App.scrollRow('row-continue-watching', 'right')" class="absolute -right-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/80 hover:bg-red-600 text-white flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-all shadow-lg">
+          ›
+        </button>
+      </div>
+    </section>
+
+    <!-- 2. TRENDING NOW -->
+    <section id="section-trending">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+          <span>🔥</span> Trending Now
+        </h3>
+      </div>
+      <div class="relative group/carousel">
+        <button onclick="App.scrollRow('row-trending', 'left')" class="absolute -left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/80 hover:bg-red-600 text-white flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-all shadow-lg">
+          ‹
+        </button>
+        <div id="row-trending" class="flex gap-4 overflow-x-auto no-scrollbar scroll-smooth py-2">
+          <!-- Cards injected via App.js -->
+        </div>
+        <button onclick="App.scrollRow('row-trending', 'right')" class="absolute -right-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/80 hover:bg-red-600 text-white flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-all shadow-lg">
+          ›
+        </button>
+      </div>
+    </section>
+
+    <!-- 3. POPULAR MOVIES -->
+    <section id="section-popular-movies">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+          <span>🎬</span> Blockbuster Movies
+        </h3>
+      </div>
+      <div class="relative group/carousel">
+        <button onclick="App.scrollRow('row-popular-movies', 'left')" class="absolute -left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/80 hover:bg-red-600 text-white flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-all shadow-lg">
+          ‹
+        </button>
+        <div id="row-popular-movies" class="flex gap-4 overflow-x-auto no-scrollbar scroll-smooth py-2">
+          <!-- Cards injected -->
+        </div>
+        <button onclick="App.scrollRow('row-popular-movies', 'right')" class="absolute -right-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/80 hover:bg-red-600 text-white flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-all shadow-lg">
+          ›
+        </button>
+      </div>
+    </section>
+
+    <!-- 4. POPULAR TV SHOWS -->
+    <section id="section-popular-tv">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+          <span>📺</span> Binge-Worthy TV Series
+        </h3>
+      </div>
+      <div class="relative group/carousel">
+        <button onclick="App.scrollRow('row-popular-tv', 'left')" class="absolute -left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/80 hover:bg-red-600 text-white flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-all shadow-lg">
+          ‹
+        </button>
+        <div id="row-popular-tv" class="flex gap-4 overflow-x-auto no-scrollbar scroll-smooth py-2">
+          <!-- Cards injected -->
+        </div>
+        <button onclick="App.scrollRow('row-popular-tv', 'right')" class="absolute -right-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/80 hover:bg-red-600 text-white flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-all shadow-lg">
+          ›
+        </button>
+      </div>
+    </section>
+
+    <!-- 5. TOP RATED MASTERPIECES -->
+    <section id="section-top-rated">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+          <span>⭐</span> Top-Rated Masterpieces
+        </h3>
+      </div>
+      <div class="relative group/carousel">
+        <button onclick="App.scrollRow('row-top-rated', 'left')" class="absolute -left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/80 hover:bg-red-600 text-white flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-all shadow-lg">
+          ‹
+        </button>
+        <div id="row-top-rated" class="flex gap-4 overflow-x-auto no-scrollbar scroll-smooth py-2">
+          <!-- Cards injected -->
+        </div>
+        <button onclick="App.scrollRow('row-top-rated', 'right')" class="absolute -right-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/80 hover:bg-red-600 text-white flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-all shadow-lg">
+          ›
+        </button>
+      </div>
+    </section>
+
+    <!-- 6. ANIME & ANIMATION -->
+    <section id="section-anime">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+          <span>🎌</span> Anime & Animation
+        </h3>
+      </div>
+      <div class="relative group/carousel">
+        <button onclick="App.scrollRow('row-anime', 'left')" class="absolute -left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/80 hover:bg-red-600 text-white flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-all shadow-lg">
+          ‹
+        </button>
+        <div id="row-anime" class="flex gap-4 overflow-x-auto no-scrollbar scroll-smooth py-2">
+          <!-- Cards injected -->
+        </div>
+        <button onclick="App.scrollRow('row-anime', 'right')" class="absolute -right-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/80 hover:bg-red-600 text-white flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-all shadow-lg">
+          ›
+        </button>
+      </div>
+    </section>
+
+    <!-- 7. MY WATCHLIST -->
+    <section id="section-watchlist" class="hidden">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+          <span>🔖</span> My Watchlist
+        </h3>
+      </div>
+      <div class="relative group/carousel">
+        <button onclick="App.scrollRow('row-watchlist', 'left')" class="absolute -left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/80 hover:bg-red-600 text-white flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-all shadow-lg">
+          ‹
+        </button>
+        <div id="row-watchlist" class="flex gap-4 overflow-x-auto no-scrollbar scroll-smooth py-2">
+          <!-- Cards injected -->
+        </div>
+        <button onclick="App.scrollRow('row-watchlist', 'right')" class="absolute -right-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/80 hover:bg-red-600 text-white flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-all shadow-lg">
+          ›
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =======================================================================
+       CINEMA PLAYER MODAL (VIDSTUCK EMBED)
+       ======================================================================= -->
+  <div id="player-modal" class="hidden fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex flex-col justify-between">
+    
+    <!-- Top Player Header -->
+    <div class="h-16 px-4 sm:px-6 flex items-center justify-between bg-zinc-950/80 border-b border-zinc-800">
+      <div class="flex items-center gap-3 min-w-0">
+        <button onclick="Player.close()" class="p-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white transition-colors" title="Close (Esc)">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+        <div class="min-w-0">
+          <h3 id="player-title" class="text-sm sm:text-base font-bold text-white truncate">Movie Title</h3>
+          <div class="flex items-center gap-2 text-xs text-zinc-400">
+            <span id="player-badge" class="px-1.5 py-0.2 rounded bg-red-600 text-[10px] font-bold text-white uppercase">Movie</span>
+            <span id="player-progress-text" class="text-zinc-400">Streaming via Vidstuck</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Server & Settings in Player -->
+      <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1.5 bg-zinc-900 border border-zinc-700/80 rounded-lg px-2 py-1">
+          <span class="text-[11px] text-zinc-400">Server:</span>
+          <select id="player-server-select" onchange="Player.switchServer(this.value)" class="bg-transparent text-xs text-white focus:outline-none cursor-pointer">
+            <option value="" class="bg-zinc-900 text-white">Default Server</option>
+            <option value="valstrax" class="bg-zinc-900 text-white">Valstrax</option>
+            <option value="alpha" class="bg-zinc-900 text-white">Alpha Fast</option>
+          </select>
+        </div>
+
+        <button onclick="Player.close()" class="text-xs text-zinc-400 hover:text-white px-2 py-1 rounded bg-zinc-800 hidden sm:block">
+          Press ESC to Exit
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Responsive Iframe Wrapper (16:9 ratio) -->
+    <div class="flex-1 flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-hidden">
+      <div class="w-full max-w-6xl player-responsive-wrapper shadow-2xl">
+        <div id="player-iframe-wrapper" class="w-full h-full">
+          <!-- Vidstuck Iframe dynamically mounted here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom TV Episode Navigation Strip (Visible for TV Series) -->
+    <div id="player-tv-nav" class="hidden px-4 sm:px-6 py-3 bg-zinc-950/90 border-t border-zinc-800/80 flex items-center gap-3">
+      <span class="text-xs font-bold text-zinc-400 uppercase tracking-wider shrink-0">Episodes:</span>
+      <div id="player-episodes-strip" class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+        <!-- Episode buttons rendered here -->
+      </div>
+    </div>
+
+  </div>
+
+  <!-- =======================================================================
+       MEDIA DETAILS MODAL
+       ======================================================================= -->
+  <div id="details-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+    <div class="relative w-full max-w-4xl bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-2xl my-8">
+      
+      <!-- Backdrop Banner -->
+      <div class="relative h-64 sm:h-80 w-full overflow-hidden">
+        <div id="details-backdrop" class="absolute inset-0 bg-cover bg-center filter brightness-60"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-zinc-900 via-zinc-900/60 to-transparent"></div>
+        
+        <!-- Close Button -->
+        <button onclick="App.closeDetails()" class="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-black/60 hover:bg-red-600 text-white flex items-center justify-center transition-colors">
+          ✕
+        </button>
+
+        <!-- Quick actions overlay -->
+        <div class="absolute bottom-6 left-6 right-6 flex items-end gap-6 z-10">
+          <img id="details-poster" src="" alt="Poster" class="w-28 sm:w-36 aspect-2/3 object-cover rounded-xl shadow-2xl border border-zinc-700/50 hidden sm:block shrink-0" />
+          <div class="flex-1">
+            <h2 id="details-title" class="text-2xl sm:text-4xl font-black text-white mb-2 leading-tight">Title</h2>
+            <div class="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-zinc-300">
+              <span id="details-rating" class="text-amber-400 font-bold">★ 8.0</span>
+              <span id="details-year">2024</span>
+              <div id="details-genres" class="flex items-center gap-1.5"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Details Content Body -->
+      <div class="p-6 space-y-6">
+        
+        <!-- Action Row -->
+        <div class="flex flex-wrap items-center gap-3">
+          <button id="details-play-btn" class="px-6 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-sm flex items-center gap-2 shadow-lg shadow-red-600/30 transition-all hover:scale-105">
+            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Stream on Vidstuck
+          </button>
+          
+          <button id="details-watchlist-btn" class="px-4 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-sm font-medium flex items-center transition-all">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg> + My List
+          </button>
+        </div>
+
+        <!-- Synopsis -->
+        <div>
+          <h4 class="text-xs uppercase font-bold text-zinc-400 mb-1 tracking-wider">Synopsis</h4>
+          <p id="details-overview" class="text-sm text-zinc-300 leading-relaxed"></p>
+        </div>
+
+        <!-- TV Seasons & Episode Picker (Only shown for TV series) -->
+        <div id="details-tv-seasons" class="hidden space-y-3 pt-2 border-t border-zinc-800">
+          <div class="flex items-center justify-between">
+            <h4 class="text-xs uppercase font-bold text-zinc-400 tracking-wider">Episodes</h4>
+            <select id="details-season-select" class="bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-1 text-xs text-white focus:outline-none focus:border-red-500">
+              <!-- Seasons loaded here -->
+            </select>
+          </div>
+          <div id="details-episodes-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-60 overflow-y-auto pr-1">
+            <!-- Episode cards rendered here -->
+          </div>
+        </div>
+
+        <!-- Cast & Characters -->
+        <div>
+          <h4 class="text-xs uppercase font-bold text-zinc-400 mb-3 tracking-wider">Featured Cast</h4>
+          <div id="details-cast-container" class="flex gap-4 overflow-x-auto no-scrollbar pb-2">
+            <!-- Cast items -->
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =======================================================================
+       SETTINGS MODAL (Brand, Color, Subtitles, TMDB API Key)
+       ======================================================================= -->
+  <div id="settings-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-2xl p-6 shadow-2xl space-y-5">
+      
+      <div class="flex items-center justify-between pb-3 border-b border-zinc-800">
+        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+          <span>⚙️</span> Vidstuck & App Settings
+        </h3>
+        <button onclick="App.closeSettings()" class="text-zinc-400 hover:text-white">✕</button>
+      </div>
+
+      <div class="space-y-4 text-xs sm:text-sm">
+        
+        <!-- Player Custom Branding -->
+        <div>
+          <label class="block font-semibold text-zinc-200 mb-1">Player Loading Branding</label>
+          <input 
+            type="text" 
+            id="setting-branding" 
+            placeholder="VIDSTUCK" 
+            class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white placeholder-zinc-500 focus:outline-none focus:border-red-500"
+          />
+          <span class="text-[11px] text-zinc-500">Custom text shown on Vidstuck player loading screen.</span>
+        </div>
+
+        <!-- Player Accent Color -->
+        <div>
+          <label class="block font-semibold text-zinc-200 mb-1">Player Accent Color</label>
+          <div class="flex items-center gap-3">
+            <input type="color" id="setting-player-color" value="#E50914" class="w-10 h-10 rounded cursor-pointer bg-transparent border-0" />
+            <span id="setting-color-hex" class="font-mono text-zinc-300">#E50914</span>
+            <div class="flex gap-1.5 ml-auto">
+              <button onclick="document.getElementById('setting-player-color').value='#E50914'; document.getElementById('setting-color-hex').textContent='#E50914';" class="w-6 h-6 rounded-full bg-[#E50914] border border-white/20" title="Netflix Red"></button>
+              <button onclick="document.getElementById('setting-player-color').value='#8B5CF6'; document.getElementById('setting-color-hex').textContent='#8B5CF6';" class="w-6 h-6 rounded-full bg-[#8B5CF6] border border-white/20" title="Purple"></button>
+              <button onclick="document.getElementById('setting-player-color').value='#06B6D4'; document.getElementById('setting-color-hex').textContent='#06B6D4';" class="w-6 h-6 rounded-full bg-[#06B6D4] border border-white/20" title="Cyan"></button>
+              <button onclick="document.getElementById('setting-player-color').value='#10B981'; document.getElementById('setting-color-hex').textContent='#10B981';" class="w-6 h-6 rounded-full bg-[#10B981] border border-white/20" title="Emerald"></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Preferred Subtitle Language -->
+        <div>
+          <label class="block font-semibold text-zinc-200 mb-1">Preferred Subtitle</label>
+          <select id="setting-subtitle" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-red-500">
+            <option value="english">English</option>
+            <option value="spanish">Spanish</option>
+            <option value="french">French</option>
+            <option value="german">German</option>
+            <option value="italian">Italian</option>
+            <option value="japanese">Japanese</option>
+            <option value="korean">Korean</option>
+          </select>
+        </div>
+
+        <!-- Preferred Server -->
+        <div>
+          <label class="block font-semibold text-zinc-200 mb-1">Default Streaming Server</label>
+          <select id="setting-server" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-red-500">
+            <option value="">Auto / Default</option>
+            <option value="valstrax">Valstrax</option>
+            <option value="alpha">Alpha</option>
+          </select>
+        </div>
+
+        <!-- TMDB API Key -->
+        <div>
+          <label class="block font-semibold text-zinc-200 mb-1">TMDB API Key (Optional)</label>
+          <input 
+            type="text" 
+            id="setting-tmdb-key" 
+            placeholder="Paste your free TMDB v3 API Key" 
+            class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white placeholder-zinc-500 focus:outline-none focus:border-red-500 font-mono text-xs"
+          />
+          <p class="text-[11px] text-zinc-500 mt-1">
+            Enables live search across all 1M+ movies and full TV seasons. Get one free at <a href="https://www.themoviedb.org/settings/api" target="_blank" class="text-red-400 underline">themoviedb.org</a>.
+          </p>
+        </div>
+
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center justify-between pt-4 border-t border-zinc-800">
+        <button onclick="App.clearAllData()" class="text-xs text-red-500 hover:text-red-400">
+          Reset History
+        </button>
+        <div class="flex gap-2">
+          <button onclick="App.closeSettings()" class="px-4 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs">
+            Cancel
+          </button>
+          <button onclick="App.saveSettingsFromForm()" class="px-5 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-bold text-xs shadow-lg shadow-red-600/30">
+            Save Preferences
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-zinc-900 py-8 text-center text-xs text-zinc-500">
+    <p>Powered by <a href="https://vidstuck.cc" target="_blank" class="text-zinc-400 hover:text-red-500 underline">Vidstuck</a> embed player & TMDB API.</p>
+    <p class="mt-1">CineStuck does not host or store any video files on its servers.</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="/js/catalog.js"></script>
+  <script src="/js/storage.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/player.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>

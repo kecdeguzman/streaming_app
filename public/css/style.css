@@ -1,0 +1,144 @@
+/* CineStuck Custom Streaming Styles */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --primary-red: #E50914;
+  --bg-dark: #090a0f;
+  --card-bg: #13151b;
+  --border-color: rgba(255, 255, 255, 0.08);
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: var(--bg-dark);
+  color: #f3f4f6;
+  overflow-x: hidden;
+}
+
+/* Custom Sleek Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #090a0f;
+}
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
+}
+
+/* Hide scrollbar for carousel rows while preserving scrolling */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Glassmorphism Classes */
+.glass-panel {
+  background: rgba(19, 21, 27, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-color);
+}
+
+.glass-nav {
+  background: rgba(9, 10, 15, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Gradient Mask for Hero Background */
+.hero-gradient-overlay {
+  background: linear-gradient(
+    to bottom,
+    rgba(9, 10, 15, 0.2) 0%,
+    rgba(9, 10, 15, 0.5) 40%,
+    rgba(9, 10, 15, 0.9) 80%,
+    #090a0f 100%
+  ),
+  linear-gradient(
+    to right,
+    rgba(9, 10, 15, 0.95) 0%,
+    rgba(9, 10, 15, 0.7) 40%,
+    transparent 100%
+  );
+}
+
+/* Aspect ratio polyfill / helpers */
+.aspect-2\/3 {
+  aspect-ratio: 2 / 3;
+}
+.aspect-16\/9 {
+  aspect-ratio: 16 / 9;
+}
+
+/* Glowing text and effects */
+.glow-red {
+  text-shadow: 0 0 20px rgba(229, 9, 20, 0.6);
+}
+
+.glow-box-red {
+  box-shadow: 0 0 30px rgba(229, 9, 20, 0.25);
+}
+
+/* Smooth carousel transition */
+.carousel-track {
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+}
+.carousel-track > div {
+  scroll-snap-align: start;
+}
+
+/* Shimmer Loading Animation */
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.shimmer::after {
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0.05) 20%,
+    rgba(255, 255, 255, 0.1) 60%,
+    rgba(255, 255, 255, 0)
+  );
+  animation: shimmer 2s infinite;
+  content: '';
+}
+
+/* Responsive iframe container */
+.player-responsive-wrapper {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+  height: 0;
+  overflow: hidden;
+  border-radius: 12px;
+  background-color: #000;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.85);
+}
+
+.player-responsive-wrapper iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
