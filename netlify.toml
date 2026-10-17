@@ -2,6 +2,10 @@
   publish = "public"
   functions = "netlify/functions"
 
+[build.environment]
+  # PORT and DEFAULT_BRANDING are non-sensitive (a local port and the player brand name)
+  SECRETS_SCAN_OMIT_KEYS = "PORT,DEFAULT_BRANDING"
+
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/api/:splat"
