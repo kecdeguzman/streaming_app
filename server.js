@@ -96,7 +96,7 @@ app.get('/api/config', (req, res) => {
     status: 'ok',
     serverKeyConfigured,
     vidstuckHost: VIDSTUCK_HOST,
-    defaultBranding: process.env.DEFAULT_BRANDING || 'VIDSTUCK',
+    defaultBranding: process.env.DEFAULT_BRANDING || 'KAIRN',
     availableServers: [
       { id: '', name: 'Default Server (Auto)' },
       { id: 'valstrax', name: 'Valstrax' },
