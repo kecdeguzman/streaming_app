@@ -126,14 +126,14 @@ const Player = {
     }
 
     // Populate TV navigation if watching TV show
-    if (tvEpisodeNav) {
-      if (isTV) {
-        tvEpisodeNav.classList.remove('hidden');
-        this.renderEpisodeButtons(content.id, content.season, content.episode);
-      } else {
-        tvEpisodeNav.classList.add('hidden');
-      }
-    }
+    // if (tvEpisodeNav) {
+    //   if (isTV) {
+    //     tvEpisodeNav.classList.remove('hidden');
+    //     this.renderEpisodeButtons(content.id, content.season, content.episode);
+    //   } else {
+    //     tvEpisodeNav.classList.add('hidden');
+    //   }
+    // }
 
     // Inject iframe
     playerContainer.innerHTML = `
