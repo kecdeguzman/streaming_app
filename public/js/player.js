@@ -116,8 +116,8 @@ const Player = {
     }
 
     if (badgeEl) {
-      badgeEl.textContent = isTV 
-        ? `S${content.season}:E${content.episode}` 
+      badgeEl.textContent = isTV
+        ? `S${content.season}:E${content.episode}`
         : 'Movie';
     }
 
@@ -164,11 +164,10 @@ const Player = {
       episodes.forEach(ep => {
         const isCurrent = ep.episode_number == currentEpisode;
         const btn = document.createElement('button');
-        btn.className = `px-3 py-1.5 rounded-lg text-xs font-medium shrink-0 transition-all ${
-          isCurrent 
-            ? 'bg-red-600 text-white shadow-lg shadow-red-600/30 font-bold scale-105' 
+        btn.className = `px-3 py-1.5 rounded-lg text-xs font-medium shrink-0 transition-all ${isCurrent
+            ? 'bg-red-600 text-white shadow-lg shadow-red-600/30 font-bold scale-105'
             : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700 hover:text-white'
-        }`;
+          }`;
         btn.textContent = `Ep ${ep.episode_number}: ${ep.name ? ep.name.slice(0, 18) : ''}`;
         btn.title = ep.overview || `Episode ${ep.episode_number}`;
         btn.onclick = () => {
@@ -236,36 +235,62 @@ const Player = {
 
   setupPostMessageListener() {
     window.addEventListener('message', (event) => {
-      // Validate origin if desired or check data string
-      if (typeof event.data !== 'string') return;
-
-      try {
-        const data = JSON.parse(event.data);
-        // Vidstuck progress message structure:
-        // { id, type, progress, timestamp, duration, season, episode }
-        if (data && data.id && (data.progress !== undefined || data.timestamp !== undefined)) {
-          const content = this.activeContent || {};
-          Storage.saveWatchProgress({
-            id: data.id,
-            type: data.type || content.type || 'movie',
-            title: content.title,
-            poster_path: content.poster_path,
-            backdrop_path: content.backdrop_path,
-            progress: data.progress,
-            timestamp: data.timestamp,
-            duration: data.duration,
-            season: data.season || content.season || 1,
-            episode: data.episode || content.episode || 1
-          });
-
-          // Update in-player progress indicator if exists
-          const progressIndicator = document.getElementById('player-progress-text');
-          if (progressIndicator && data.progress) {
-            progressIndicator.textContent = `${Math.round(data.progress)}% watched`;
-          }
+      // 1. Parse data whether it arrives as a string or an object
+      let data = event.data;
+      if (typeof data === 'string') {
+        try {
+          data = JSON.parse(data);
+        } catch (e) {
+          return; // Ignore non-JSON strings
         }
-      } catch (e) {
-        // Not a JSON message or not from player, ignore safely
+      }
+
+      if (!data || typeof data !== 'object') return;
+
+      // 2. Validate payload from Vidstuck player
+      // Structure: { id, type, progress, timestamp, duration, season, episode }
+      if (data.id && (data.progress !== undefined || data.timestamp !== undefined)) {
+        const content = this.activeContent || {};
+
+        const currentSeason = Number(data.season || content.season || 1);
+        const currentEpisode = Number(data.episode || content.episode || 1);
+
+        // 3. Keep Player.activeContent in sync with player's internal episode picker
+        if (this.activeContent) {
+          this.activeContent.season = currentSeason;
+          this.activeContent.episode = currentEpisode;
+        }
+
+        // 4. Update the player header badge & side buttons
+        const badgeEl = document.getElementById('player-badge');
+        if (badgeEl && (data.type === 'tv' || content.type === 'tv')) {
+          badgeEl.textContent = `S${currentSeason}:E${currentEpisode}`;
+        }
+
+        const prevBtn = document.getElementById('player-prev-btn');
+        if (prevBtn) {
+          prevBtn.disabled = currentEpisode <= 1;
+        }
+
+        // 5. Save the watch progress and new episode to localStorage
+        Storage.saveWatchProgress({
+          id: data.id,
+          type: data.type || content.type || 'movie',
+          title: content.title,
+          poster_path: content.poster_path,
+          backdrop_path: content.backdrop_path,
+          progress: data.progress,
+          timestamp: data.timestamp,
+          duration: data.duration,
+          season: currentSeason,
+          episode: currentEpisode
+        });
+
+        // Update in-player progress indicator
+        const progressIndicator = document.getElementById('player-progress-text');
+        if (progressIndicator && data.progress) {
+          progressIndicator.textContent = `${Math.round(data.progress)}% watched`;
+        }
       }
     });
   },
