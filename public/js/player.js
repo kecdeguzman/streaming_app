@@ -62,9 +62,15 @@ const Player = {
   },
 
   // Open player in modal
-  open({ id, type = 'movie', title, name, poster_path, backdrop_path, season = 1, episode = 1 }) {
+  open({ id, type = 'movie', title, name, poster_path, backdrop_path, season, episode }) {
     const displayTitle = title || name || (type === 'tv' ? 'TV Series' : 'Movie');
-    const savedProgress = Storage.getProgress(id, type, season, episode);
+
+    // Look up existing history entry to get the last watched episode if none passed
+    const historyItem = Storage.getWatchHistory().find(h => h.id == id && h.type == type);
+
+    const targetSeason = Number(season || historyItem?.season || 1);
+    const targetEpisode = Number(episode || historyItem?.episode || 1);
+    const savedProgress = Storage.getProgress(id, type, targetSeason, targetEpisode);
 
     this.activeContent = {
       id,
@@ -72,19 +78,18 @@ const Player = {
       title: displayTitle,
       poster_path,
       backdrop_path,
-      season: Number(season),
-      episode: Number(episode)
+      season: targetSeason,
+      episode: targetEpisode
     };
 
-    // Save initial progress record immediately
     Storage.saveWatchProgress({
       id,
       type,
       title: displayTitle,
       poster_path,
       backdrop_path,
-      season,
-      episode,
+      season: targetSeason,
+      episode: targetEpisode,
       timestamp: savedProgress,
       progress: savedProgress > 0 ? 5 : 0
     });
@@ -92,8 +97,8 @@ const Player = {
     const embedUrl = this.buildEmbedUrl({
       id,
       type,
-      season,
-      episode,
+      season: targetSeason,
+      episode: targetEpisode,
       progress: savedProgress
     });
 
@@ -165,8 +170,8 @@ const Player = {
         const isCurrent = ep.episode_number == currentEpisode;
         const btn = document.createElement('button');
         btn.className = `px-3 py-1.5 rounded-lg text-xs font-medium shrink-0 transition-all ${isCurrent
-            ? 'bg-red-600 text-white shadow-lg shadow-red-600/30 font-bold scale-105'
-            : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700 hover:text-white'
+          ? 'bg-red-600 text-white shadow-lg shadow-red-600/30 font-bold scale-105'
+          : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700 hover:text-white'
           }`;
         btn.textContent = `Ep ${ep.episode_number}: ${ep.name ? ep.name.slice(0, 18) : ''}`;
         btn.title = ep.overview || `Episode ${ep.episode_number}`;
@@ -235,62 +240,77 @@ const Player = {
 
   setupPostMessageListener() {
     window.addEventListener('message', (event) => {
-      // 1. Parse data whether it arrives as a string or an object
-      let data = event.data;
-      if (typeof data === 'string') {
+      if (!event.data) return;
+
+      let payload = event.data;
+
+      // Handle stringified JSON
+      if (typeof payload === 'string') {
         try {
-          data = JSON.parse(data);
+          payload = JSON.parse(payload);
         } catch (e) {
-          return; // Ignore non-JSON strings
+          return; // Ignore regular string messages
         }
       }
 
-      if (!data || typeof data !== 'object') return;
+      if (typeof payload !== 'object' || payload === null) return;
 
-      // 2. Validate payload from Vidstuck player
-      // Structure: { id, type, progress, timestamp, duration, season, episode }
-      if (data.id && (data.progress !== undefined || data.timestamp !== undefined)) {
+      // Some embed players nest payload details under 'data' or 'detail'
+      const info = payload.data || payload.detail || payload;
+
+      // Check for season & episode across multiple common naming conventions
+      const season = info.season ?? info.currentSeason ?? info.season_number;
+      const episode = info.episode ?? info.currentEpisode ?? info.episode_number ?? info.ep;
+
+      // Check for progress / timestamp
+      const progress = info.progress ?? info.percentage;
+      const timestamp = info.timestamp ?? info.currentTime ?? info.time;
+      const duration = info.duration ?? info.totalTime;
+
+      // Only process if we got episode info OR playback progress
+      if (episode !== undefined || progress !== undefined || timestamp !== undefined) {
         const content = this.activeContent || {};
 
-        const currentSeason = Number(data.season || content.season || 1);
-        const currentEpisode = Number(data.episode || content.episode || 1);
+        const currentSeason = season !== undefined ? Number(season) : Number(content.season || 1);
+        const currentEpisode = episode !== undefined ? Number(episode) : Number(content.episode || 1);
 
-        // 3. Keep Player.activeContent in sync with player's internal episode picker
+        // 1. Sync active content memory
         if (this.activeContent) {
           this.activeContent.season = currentSeason;
           this.activeContent.episode = currentEpisode;
         }
 
-        // 4. Update the player header badge & side buttons
+        // 2. Update UI badge in top navigation
         const badgeEl = document.getElementById('player-badge');
-        if (badgeEl && (data.type === 'tv' || content.type === 'tv')) {
+        if (badgeEl && (content.type === 'tv' || info.type === 'tv')) {
           badgeEl.textContent = `S${currentSeason}:E${currentEpisode}`;
         }
 
+        // 3. Update side Previous button state
         const prevBtn = document.getElementById('player-prev-btn');
         if (prevBtn) {
           prevBtn.disabled = currentEpisode <= 1;
         }
 
-        // 5. Save the watch progress and new episode to localStorage
+        // 4. Update duration/percentage label if present
+        const progressIndicator = document.getElementById('player-progress-text');
+        if (progressIndicator && progress !== undefined) {
+          progressIndicator.textContent = `${Math.round(progress)}% watched`;
+        }
+
+        // 5. Persist progress & episode to storage
         Storage.saveWatchProgress({
-          id: data.id,
-          type: data.type || content.type || 'movie',
+          id: info.id || content.id,
+          type: info.type || content.type || 'tv',
           title: content.title,
           poster_path: content.poster_path,
           backdrop_path: content.backdrop_path,
-          progress: data.progress,
-          timestamp: data.timestamp,
-          duration: data.duration,
+          progress: progress !== undefined ? Math.round(progress) : (content.progress || 0),
+          timestamp: timestamp !== undefined ? Math.round(timestamp) : 0,
+          duration: duration !== undefined ? Math.round(duration) : 0,
           season: currentSeason,
           episode: currentEpisode
         });
-
-        // Update in-player progress indicator
-        const progressIndicator = document.getElementById('player-progress-text');
-        if (progressIndicator && data.progress) {
-          progressIndicator.textContent = `${Math.round(data.progress)}% watched`;
-        }
       }
     });
   },
